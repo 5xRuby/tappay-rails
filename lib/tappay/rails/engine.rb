@@ -1,7 +1,9 @@
-module Tappay
+# frozen_string_literal: true
+require 'tappay/engine'
+
+module TapPay
   module Rails
-    class Engine < ::Rails::Engine
-      isolate_namespace Tappay::Rails
+    class Engine < TapPay::Engine
     end
   end
 end

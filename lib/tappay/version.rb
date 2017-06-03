@@ -1,7 +1,4 @@
 # frozen_string_literal: true
-require 'tappay'
-
 module TapPay
-  module Rails
-  end
+  VERSION = '0.1.0'
 end

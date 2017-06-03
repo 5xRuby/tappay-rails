@@ -1,2 +1,2 @@
-Tappay::Rails::Engine.routes.draw do
+TapPay::Engine.routes.draw do
 end
