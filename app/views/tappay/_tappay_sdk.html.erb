@@ -1,0 +1,4 @@
+<script src="https://js.tappaysdk.com/tpdirect/v2_1_1"></script>
+<script>
+  TPDirect.setupSDK(<%= TapPay.config.app_id %>, '<%= TapPay.config.server_type == 'production' ? TapPay.config.app_key : TapPay.config.sandbox_app_key %>', '<%= TapPay.config.server_type %>')
+</script>
