@@ -1,0 +1,59 @@
+<% input_id ||= SecureRandom.uuid %>
+<%= render partial: 'tappay/inputs/basic_card_number_input', locals: { input_id: input_id } %>
+<%= hidden_field_tag prime_input_name ||= 'tappay_card[prime]', nil, id: "cp-#{input_id}" %>
+<%= hidden_field_tag bincode_input_name ||= 'tappay_card[bincode]', nil, id: "cbc-#{input_id}" %>
+<%= hidden_field_tag lastfour_input_name ||= 'tappay_card[lastfour]', nil, id: "clf-#{input_id}" %>
+<%= hidden_field_tag issuer_input_name ||= 'tappay_card[issuer]', nil, id: "ci-#{input_id}" %>
+<%= hidden_field_tag funding_input_name ||= 'tappay_card[funding]', nil, id: "cf-#{input_id}" %>
+<%= hidden_field_tag type_input_name ||= 'tappay_card[type]', nil, id: "ct-#{input_id}" %>
+
+<script type="text/javascript">
+  $(function () {
+    var $input = $('#c-<%= input_id %>');
+    var $form = $input.parents('form');
+
+    var $primeInput = $('#cp-<%= input_id %>');
+    var $bincodeInput = $('#cbc-<%= input_id %>');
+    var $lastfourInput = $('#clf-<%= input_id %>');
+    var $issuerInput = $('#ci-<%= input_id %>');
+    var $fundingInput = $('#cf-<%= input_id %>');
+    var $typeInput = $('#ct-<%= input_id %>');
+
+    var canDirectSubmit = false;
+
+    $form.on('submit', function (e) {
+      if (canDirectSubmit) return true;
+      e.preventDefault();
+
+      var cardNumber = $input.attr('data-card-number') || '';
+      var cardExpiryMonth = $input.attr('data-card-expiry-month') || '';
+      var cardExpiryYear = $input.attr('data-card-expiry-year') || '';
+      var cardCVC = $input.attr('data-card-cvc') || '';
+
+      $input.addClass('loading');
+
+      TPDirect.card.createToken(cardNumber, ('0' + cardExpiryMonth).slice(-2), cardExpiryYear.substr(2), cardCVC, function (result) {
+        if (result.status === 0) {
+          // Success
+          $primeInput.val(result.card.prime);
+          $bincodeInput.val(result.card.bincode);
+          $lastfourInput.val(result.card.lastfour);
+          $issuerInput.val(result.card.issuer);
+          $fundingInput.val(result.card.funding);
+          $typeInput.val(result.card.type);
+          canDirectSubmit = true;
+          $form.submit();
+        } else {
+          // Failure
+          $input.removeClass('loading');
+          $input.addClass('has-card-number-error');
+          $input.addClass('has-card-expiry-error');
+          $input.addClass('has-card-cvc-error');
+          console.warn(result);
+        }
+      });
+
+      return false;
+    });
+  });
+</script>

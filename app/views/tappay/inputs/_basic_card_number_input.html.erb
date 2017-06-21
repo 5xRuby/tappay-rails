@@ -1,0 +1,214 @@
+<% input_id ||= SecureRandom.uuid %>
+
+<div id="c-<%= input_id %>" class="card-input-group">
+  <input class="number" type="tel" autocomplete="cc-number" autocorrect="off" spellcheck="false" placeholder="4242 4242 4242 4242">
+  <input class="expiry" type="tel" autocomplete="cc-exp" autocorrect="off" spellcheck="false" placeholder="01 / 20">
+  <input class="cvc" type="tel" autocomplete="cc-csc" autocorrect="off" spellcheck="false" placeholder="CVC">
+</div>
+
+<script type="text/javascript">
+  $(function () {
+    var cardNumber, cardType, cardNumberValid, cardExpiry, cardExpiryMonth, cardExpiryYear, cardExpiryValid, cardCVC, cardCVCValid;
+    var $input = $('#c-<%= input_id %>');
+    var $cardNumberInput = $input.find('input.number');
+    var $cardExpiryInput = $input.find('input.expiry');
+    var $cardCVCInput = $input.find('input.cvc');
+
+    var handleInputFocus = function (e) {
+      $input.addClass('focus');
+      return true;
+    };
+
+    var handleInputBlur = function (e) {
+      $input.removeClass('focus');
+      return true;
+    };
+
+    $cardNumberInput.on('focus', handleInputFocus);
+    $cardExpiryInput.on('focus', handleInputFocus);
+    $cardCVCInput.on('focus', handleInputFocus);
+
+    $cardNumberInput.on('blur', handleInputBlur);
+    $cardExpiryInput.on('blur', handleInputBlur);
+    $cardCVCInput.on('blur', handleInputBlur);
+
+    var removeErrorClasses = function () {
+      if (cardNumberValid || !cardNumber) $input.removeClass('has-card-number-error');
+      if (cardExpiryValid || !cardExpiry) $input.removeClass('has-card-expiry-error');
+      if (cardCVCValid || !cardCVC) $input.removeClass('has-card-cvc-error');
+    }
+
+    var handleNumberChange = function (e) {
+      cardNumber = e.target.value;
+      cardNumber = cardNumber.replace(/ /g, '');
+      cardType = $.payment.cardType(cardNumber);
+      cardNumberValid = $.payment.validateCardNumber(cardNumber);
+      $input.attr('data-card-number', cardNumber);
+      $input.attr('data-card-number-valid', cardNumberValid);
+      $input.attr('data-card-type', cardType);
+
+      if (e.type === 'keydown') {
+        var keyDownFunction = function () {
+          if (cardNumberValid && e.keyCode >= 48 && e.keyCode <= 57) {
+            $cardExpiryInput.focus();
+          }
+        };
+        setTimeout(keyDownFunction, 10);
+        setTimeout(keyDownFunction, 100);
+      }
+
+      if (e.type === 'blur') {
+        if (!cardNumberValid) $input.addClass('has-card-number-error');
+      }
+
+      removeErrorClasses();
+      return true;
+    };
+
+    var handleExpiryChange = function (e) {
+      cardExpiry = e.target.value;
+      var cardExpiryVal;
+
+      if (cardExpiry.match(/\//)) {
+        cardExpiryVal = $.payment.cardExpiryVal(cardExpiry);
+      } else {
+        cardExpiryVal = $.payment.cardExpiryVal(cardExpiry.substr(0, 2) + '/' + cardExpiry.substr(2));
+      }
+      cardExpiryMonth = cardExpiryVal.month;
+      cardExpiryYear = cardExpiryVal.year;
+
+      cardExpiryValid = $.payment.validateCardExpiry(cardExpiryMonth, cardExpiryYear);
+      $input.attr('data-card-expiry', cardExpiry);
+      $input.attr('data-card-expiry-month', cardExpiryMonth);
+      $input.attr('data-card-expiry-year', cardExpiryYear);
+      $input.attr('data-card-expiry-valid', cardExpiryValid);
+
+      if (e.type === 'keydown') {
+        var keyDownFunction = function () {
+          if (cardExpiryValid && e.keyCode >= 48 && e.keyCode <= 57) {
+            $cardCVCInput.focus();
+          }
+        };
+        setTimeout(keyDownFunction, 10);
+        setTimeout(keyDownFunction, 100);
+
+        if (cardExpiry === '' && e.keyCode === 8) {
+          $cardNumberInput.focus();
+        }
+      }
+
+      if (e.type === 'blur') {
+        if (!cardExpiryValid) $input.addClass('has-card-expiry-error');
+      }
+
+      removeErrorClasses();
+      return true;
+    };
+
+    var handleCVCChange = function (e) {
+      cardCVC = e.target.value;
+      cardCVCValid = $.payment.validateCardCVC(cardCVC, cardType);
+      $input.attr('data-card-cvc', cardCVC);
+      $input.attr('data-card-cvc-valid', cardCVCValid);
+
+      if (e.type === 'keydown') {
+        if (cardCVC === '' && e.keyCode === 8) {
+          $cardExpiryInput.focus();
+        }
+      }
+
+      if (e.type === 'blur') {
+        if (!cardCVCValid) $input.addClass('has-card-cvc-error');
+      }
+
+      removeErrorClasses();
+      return true;
+    };
+
+    $cardNumberInput.payment('formatCardNumber');
+    $cardNumberInput.on('blur change click focus input keydown keyup paste reset selectionchange', handleNumberChange);
+
+    $cardExpiryInput.payment('formatCardExpiry');
+    $cardExpiryInput.on('blur change click focus input keydown keyup paste reset selectionchange', handleExpiryChange);
+
+    $cardCVCInput.payment('formatCardCVC');
+    $cardCVCInput.on('blur change click focus input keydown keyup paste reset selectionchange', handleCVCChange);
+  });
+</script>
+
+<style type="text/css">
+  #c-<%= input_id %> {
+    display: inline-block;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: .25rem;
+    padding: 8px 12px;
+    background-color: #ffffff;
+    font-weight: 200;
+    transition: box-shadow .3s;
+  }
+
+  #c-<%= input_id %>.focus {
+    box-shadow: 0 1px 8px rgba(0, 0, 0, .2);
+  }
+
+  #c-<%= input_id %>.loading {
+    pointer-events: none;
+    opacity: .7;
+  }
+
+  #c-<%= input_id %>.has-card-number-error,
+  #c-<%= input_id %>.has-card-expiry-error,
+  #c-<%= input_id %>.has-card-cvc-error {
+    border-color: rgba(256, 118, 90, .9);
+  }
+
+  #c-<%= input_id %> input {
+    border: 0;
+    outline: none;
+    font-size: 1rem;
+    line-height: 1.25;
+    color: rgb(50, 50, 80);
+  }
+
+  #c-<%= input_id %> input.number {
+    width: 16rem;
+  }
+
+  #c-<%= input_id %>.has-card-number-error input.number {
+    color: rgba(256, 118, 90, 1);
+  }
+
+  #c-<%= input_id %> input.expiry {
+    margin-left: -.5rem;
+    width: 4rem;
+  }
+
+  #c-<%= input_id %>.has-card-expiry-error input.expiry {
+    color: rgba(256, 118, 90, 1);
+  }
+
+  #c-<%= input_id %> input.cvc {
+    margin-left: -.5rem;
+    width: 3rem;
+  }
+
+  #c-<%= input_id %>.has-card-cvc-error input.cvc {
+    color: rgba(256, 118, 90, 1);
+  }
+
+  #c-<%= input_id %> ::-webkit-input-placeholder {
+    opacity: .7;
+  }
+
+  #c-<%= input_id %> :-moz-placeholder {
+    opacity: .7;
+  }
+
+  #c-<%= input_id %> ::-moz-placeholder {
+    opacity: .7;
+  }
+
+  #c-<%= input_id %> :-ms-input-placeholder {
+    opacity: .7;
+  }
+</style>
