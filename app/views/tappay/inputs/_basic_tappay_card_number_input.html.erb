@@ -1,11 +1,12 @@
 <% input_id ||= SecureRandom.uuid %>
+<% name ||= 'tappay_card' %>
 <%= render partial: 'tappay/inputs/basic_card_number_input', locals: { input_id: input_id } %>
-<%= hidden_field_tag prime_input_name ||= 'tappay_card[prime]', nil, id: "cp-#{input_id}" %>
-<%= hidden_field_tag bincode_input_name ||= 'tappay_card[bincode]', nil, id: "cbc-#{input_id}" %>
-<%= hidden_field_tag lastfour_input_name ||= 'tappay_card[lastfour]', nil, id: "clf-#{input_id}" %>
-<%= hidden_field_tag issuer_input_name ||= 'tappay_card[issuer]', nil, id: "ci-#{input_id}" %>
-<%= hidden_field_tag funding_input_name ||= 'tappay_card[funding]', nil, id: "cf-#{input_id}" %>
-<%= hidden_field_tag type_input_name ||= 'tappay_card[type]', nil, id: "ct-#{input_id}" %>
+<%= hidden_field_tag prime_input_name ||= "#{name}[prime]", nil, id: "cp-#{input_id}" %>
+<%= hidden_field_tag bincode_input_name ||= "#{name}[bincode]", nil, id: "cbc-#{input_id}" %>
+<%= hidden_field_tag lastfour_input_name ||= "#{name}[lastfour]", nil, id: "clf-#{input_id}" %>
+<%= hidden_field_tag issuer_input_name ||= "#{name}[issuer]", nil, id: "ci-#{input_id}" %>
+<%= hidden_field_tag funding_input_name ||= "#{name}[funding]", nil, id: "cf-#{input_id}" %>
+<%= hidden_field_tag type_input_name ||= "#{name}[type]", nil, id: "ct-#{input_id}" %>
 
 <script type="text/javascript">
   $(function () {

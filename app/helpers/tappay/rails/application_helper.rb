@@ -2,6 +2,7 @@ module Tappay
   module Rails
     module ApplicationHelper
       def tappay_card_input(
+        name: nil,
         prime_input_name: nil,
         bincode_input_name: nil,
         lastfour_input_name: nil,
@@ -11,6 +12,7 @@ module Tappay
       )
         render partial: 'tappay/inputs/basic_tappay_card_number_input',
                locals: {
+                 name: name,
                  prime_input_name: prime_input_name,
                  bincode_input_name: bincode_input_name,
                  lastfour_input_name: lastfour_input_name,

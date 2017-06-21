@@ -47,16 +47,34 @@ If you are not using jQuery in your project, require `tappay_with_zepto` instead
 
 ## Basic Usage
 
+### In The View
+
 Place `tappay_card_input` in any form:
 
 ```erb
 <%= form_for @order do |f| %>
-  <%= tappay_card_input %>
+  <%= tappay_card_input name: :credit_card %>
   <%= f.submit %>
 <% end %>
 ```
 
-<!-- TODO: Make Simple Form compatible -->
+Or, if you are using [Simple Form 2.x](https://github.com/plataformatec/simple_form), add `as: :tappay_card` to any desired input:
+
+```slim
+= simple_form_for @credit_card do |f|
+  = f.input :data, as: :tappay_card
+  = f.submit
+```
+
+### Controller Side
+
+To assign the data to any model, you can write a method to permit the params passed in:
+
+```rb
+  def credit_card_params
+    params.require(:credit_card).permit(data: [:prime, :bincode, :lastfour, :issuer, :funding, :type])
+  end
+```
 
 
 ## License
