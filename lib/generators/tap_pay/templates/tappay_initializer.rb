@@ -1,7 +1,7 @@
 TapPay.configure do |config|
   # TapPay Merchantid ID. This is the account name that you use to log in the
   # TapPay Portal.
-  config.merchantid_id = 'place_your_merchantid_id_here'
+  config.merchant_id = 'place_your_merchant_id_here'
 
   # VAT Number and Partner Key. This can be found on the "Information" page of
   # TapPay Portal (https://portal.tappaysdk.com/information).
@@ -18,4 +18,7 @@ TapPay.configure do |config|
 
   # The server type of TapPay, "sandbox" or "production".
   config.server_type = 'sandbox'
+
+  # Default currency to use. You can override this in every request.
+  config.default_currency = 'TWD'
 end

@@ -2,6 +2,9 @@
 require 'tappay/version'
 require 'tappay/config'
 
+require 'tappay/request'
+require 'tappay/response'
+
 module TapPay
   def self.configure
     yield config

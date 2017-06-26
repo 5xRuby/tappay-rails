@@ -68,7 +68,22 @@ Or, if you are using [Simple Form 2.x](https://github.com/plataformatec/simple_f
 
 ### Controller Side
 
-To assign the data to any model, you can write a method to permit the params passed in:
+You can create an `TapPay::Response::CardInfo` response object using the incoming params:
+
+```rb
+card = TapPay::Response::CardInfo.new(params[:credit_card])
+
+card.prime          # => "1a836c4958c1525c7cf3b51bd90b1d3ad4e96dcc287867512f4d267ad4c1e794"
+card.lastfour       # => "4242"
+card.funding.to_s   # => "Credit Card"
+card.funding.to_sym # => :credit_card
+card.funding == 0   # => true
+card.type.to_s      # => "VISA"
+card.type.to_sym    # => :visa
+card.type.to_i      # => 1
+```
+
+Or to assign the data to any model, you can write a method to permit the params passed in:
 
 ```rb
   def credit_card_params
