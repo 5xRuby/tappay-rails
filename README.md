@@ -36,7 +36,7 @@ You'll need to `require tappay` in your JavaScript manifest. Place it after `req
 + //= require tappay
 ```
 
-If you are not using jQuery in your project, require `tappay_with_zepto` instead.
+If you are not using jQuery in your project, you may need to require `tappay_with_zepto` instead because [jQuery.payment](https://github.com/stripe/jquery.payment) depends on a jQuery-like lib.
 
 ```diff
   //= require rails-ujs
@@ -90,6 +90,99 @@ Or to assign the data to any model, you can write a method to permit the params 
     params.require(:credit_card).permit(data: [:prime, :bincode, :lastfour, :issuer, :funding, :type])
   end
 ```
+
+### Charge The User
+
+After you get the [prime](https://docs.tappaysdk.com/tutorial/zh/reference.html#prime) (`card.prime`), you can use it whihin 30 seconds to ...
+
+#### Make a one time charge
+
+For example:
+
+```rb
+# All the shown arguments are required. For more info, see
+# https://docs.tappaysdk.com/tutorial/zh/back.html#pay-by-prime-api
+req = TapPay::Request::PayByPrime.new(
+  prime: '977d9963e56edcc20b0c0b0351883f38666dc60f08d6fe0f3b6162f736b1ec5b',
+  amount: 100,
+  details: "An apple and a pen.",
+  ptradeid: "TapPay_Test_001",
+  cardholder: {
+    name: "王小明",
+    email: "LittleMing@Wang.com",
+    phonenumber: "+886923456789"
+  }
+)
+
+res = req.request
+
+res.success? # => true
+res.rectradeid # => "D20170626vb5MyJ" (this ID will be used for future refunding)
+res.orderid # => "TP20170626vb5MyJ"
+res.card_info.lastfour # => "4242"
+# For more info of the respond object, see
+# https://docs.tappaysdk.com/tutorial/zh/back.html#pay-by-prime-api
+```
+
+#### Get the card token (or also make a one time charge)
+
+Since the [prime](https://docs.tappaysdk.com/tutorial/zh/reference.html#prime) can only be used once, we can get a card token and save it for future charging, without asking the user for their credit card number again.
+
+To do this, set `remember` to `true` when using the PayByPrime API like this:
+
+```diff
+  req = TapPay::Request::PayByPrime.new(
+    prime: '977d9963e56edcc20b0c0b0351883f38666dc60f08d6fe0f3b6162f736b1ec5b',
+    amount: 100,
+    details: "An apple and a pen.",
+    ptradeid: "TapPay_Test_001",
+    cardholder: {
+      name: "王小明",
+      email: "LittleMing@Wang.com",
+      phonenumber: "+886923456789"
+    },
++   remember: true
+  )
+```
+
+Then, you can get the card token with the response:
+
+```
+res = req.request
+
+res.success? # => true
+res.card_secret.key # => "2ddb643f375dca31323c79e031ab6b5efbcdfa0294863642afbd9f3be87e032c"
+res.card_secret.token # => "977d9963e56edcc20b0c0b0351883f38666dc60f08d6fe0f3b6162f736b1ec5b"
+```
+
+... and use them in the future like this:
+
+```rb
+# All the shown arguments are required. For more info, see
+# https://docs.tappaysdk.com/tutorial/zh/back.html#pay-by-card-token-api
+req = TapPay::Request::PayByCardToken.new(
+  cardkey: '2ddb643f375dca31323c79e031ab6b5efbcdfa0294863642afbd9f3be87e032c',
+  cardtoken: '977d9963e56edcc20b0c0b0351883f38666dc60f08d6fe0f3b6162f736b1ec5b',
+  amount: 100,
+  details: "An apple and a pen.",
+  ptradeid: "TapPay_Test_001"
+)
+
+res = req.request
+res.success? # => true
+# For more info of the respond object, see
+# https://docs.tappaysdk.com/tutorial/zh/back.html#pay-by-card-token-api
+```
+
+> TODO: Instructions for not charging the user but only get a card token, or also checking the card balance.
+
+
+## TODO
+
+- Wrap Refund API.
+- Wrap Cap Today API.
+- Wrap Record API.
+- Write tests.
 
 
 ## License
