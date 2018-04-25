@@ -3,12 +3,19 @@
 An API wrapper for [TapPay](https://www.tappaysdk.com).
 
 
+## Notice
+
+This library is using TapPay API **v2**. See the v2 docs [here|https://onedrive.live.com/download?cid=2E7ABBDC6C509913&resid=2E7ABBDC6C509913%215173&authkey=AH5sDA8pWBPnQ0U]
+
+For **v3** usage, please consider [tappay-ruby|https://github.com/hzchirs/tappay-ruby].
+
+
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'tappay-rails'
+gem 'tappay-rails', github: '5xRuby/tappay-rails'
 ```
 
 And then execute:
